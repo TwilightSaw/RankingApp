@@ -1,14 +1,16 @@
-﻿import React, { useState, useEffect } from 'react'; 
+﻿import {useEffect, useState } from 'react'; 
 import MovieImage from './MovieImages.js';
 import RankingGrid from './RankingGrid.js';
+import ItemCollection from './ItemCollection.js';
+import Item from './Item.js'
 
+const RankItems = ({items, setItems, dataType, imgArr, localStorageKey }) => {
 
-const RankItems = () => {
+    const [reload, setReload] = useState(false);
 
-
-    const [items, setItems] = useState([]);
-    const dataType = 1;
-
+    function Reload() {
+        setReload(true);
+    }
 
     function drag(ev) {
         ev.dataTransfer.setData("text", ev.target.id);
@@ -34,34 +36,43 @@ const RankItems = () => {
         }
 
     useEffect(() => {
+        if (items == null) {
+            getDataFromApi()
+        }
+        setReload(false);
+    }, [dataType])
+
+    useEffect(() => {
+        if (reload === true) {
+            getDataFromApi();
+
+        }
+    },[reload])
+
+    function getDataFromApi() {
         fetch(`item/${dataType}`)
             .then((results) => {
                 return results.json();
-        })
-        .then(data => {
-            setItems(data);
-        })  
+            })
+            .then(data => {
+                setItems(data);
+            })  
+    }
 
-    }, [])
+    useEffect(() => {
+        if (items != null) {
+            localStorage.setItem(localStorageKey, JSON.stringify(items));
+        }
+    }, [items])
 
     return (
-        <main>
-            <RankingGrid items={items} imgArr={MovieImage} drag={drag } allowDrop={allowDrop } drop={drop } />
-            <div className="items-not-ranked">
-            {
-                    (items.length > 0) ? items.map((item) =>
-                    (item.ranking === 0) ?
-                    <div className = "unranked-cell">
-                            <img id={`item-${item.id}`} src={MovieImage.find(x => x.id === item.imageId)?.image}
-                                style={{ cursor: "pointer" }} draggable="true" onDragStart={drag }
-                            />
-                    </div> : null)
-
-                    : <div>Loading...</div>
-                }
-            </div>
-        </main>
-
+        (items != null) ?
+            <main>
+                <RankingGrid items={items} imgArr={imgArr} drag={drag} allowDrop={allowDrop} drop={drop} />
+                <ItemCollection items={items} drag={drag} imgArr={imgArr} />
+                <button className="reload" onClick={Reload} style={{"marginTop": "10px"} }><span class="text">Reload</span></button>
+            </main>
+            : <main>Loading...</main>
     )
 }
 export default RankItems;

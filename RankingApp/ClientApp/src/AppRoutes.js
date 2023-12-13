@@ -1,7 +1,9 @@
+import AlbumImage from "./components/AlbumImages";
 import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
-import  RankItems  from "./components/RankItems";
+import MovieImages from "./components/MovieImages";
+import  RankItemsContainer  from "./components/RankItemsContainer";
 
 const AppRoutes = [
   {
@@ -17,8 +19,12 @@ const AppRoutes = [
         element: <FetchData />
     },
     {
-        path: '/rank-items',
-        element: <RankItems />
+        path: '/rank-movies',
+        element: <RankItemsContainer dataType={1} imgArr={MovieImages} />
+    },
+    {
+        path: '/rank-albums',
+        element: <RankItemsContainer dataType={2} imgArr={AlbumImage} />
     }
 ];
 
